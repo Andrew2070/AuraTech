@@ -1,5 +1,3 @@
-```lua
-
 
 
 --[[Skynet Nuclear ABM Defense Program by Andrew2060]]--
@@ -96,4 +94,4 @@ while true do
    sleep(2)
 end
 sleep(1)
-```
+
