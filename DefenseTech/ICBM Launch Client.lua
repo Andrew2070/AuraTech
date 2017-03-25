@@ -1,41 +1,67 @@
---Silo Launch PC, [working] [By Andrew2060]
- 
---[[Settings]]--
-peripheral.find("modem", rednet.open)
-local icbmSide = "back"
-local armed = true
---set armed to false to disarm silo.
- 
---[[Init]]--
-local masterID
- 
---[[Functions]]--
-local function clear()
- term.clear()
-  term.setCursorPos(1, 1)
-   end
+--[[Missile Launch Client by: Andrew2070]]--
+--[[Don't touch the code unless you know what you're doing]]--
+--[[Annotations below describe what each section does]]--
 
---[[Main program]]--
-clear()
-while true do
-  print("Waiting for Launch Confirmation Message")
-  id, msg, distance = rednet.receive(masterID)
+
+--[[Initialization]]--
+shell.run("clear")
+shell.run("id")
+missilesilo = peripheral.wrap("back")
+rednet.open("top")
+local armed = true
+local masterID
+--local pack = textutils.serialise(siloData)
  
-  if (msg == "ping silo") then
+--[[Contingencies]]--
+ 
+if peripheral.call("back", "getMissile") ~= "{}"
+then currentmissile = "No Missile"
+  elseif peripheral.call("back", "getMissile") = "anti-ballistic missile"
+  then
+   local  currentmissile = tostring(missilesilo.getMissile())
+    end
+ 
+--//Basically provides a contingency that when no missile is detected, it returns "No Missile"
+--//Prevents crashing due to nil values returned by empty missile silo.
+ 
+ 
+--[[Data Storage + Table]]--
+local  target = tostring(missilesilo.getTarget())
+ 
+local siloData = {
+["Msg"] = "pong",
+["ID"] = os.getComputerID(),
+["Missile"] = currentmissile,
+["Target"] = target
+}
+ 
+--[[Main Program + Rednet Setup]]--
+while true do
+ print("Waiting for Threat Message From Defense Server...")
+ local id, msg2 = rednet.receive(masterID)
+ 
+  if (msg2 == "ping") then
     print("  master=", id)
     masterID = id;
-    rednet.send(masterID, "pong")
-  elseif type(msg) == "table" and id == masterID then
-    if type(msg.x) == "number" and type(msg.y) == "number" and type(msg.z) == "number" then
-      print("  launch to x=" .. msg.x .. ", y=" .. msg.y .. ", z=" .. msg.z)
-      icbm.setTarget(msg.x, msg.y, msg.z)
-      if (armed) then
-        peripheral.call("back", "launch")
-      end
-    else
-      print("  invalid table command")
+    print(siloData[1])
+    rednet.send(masterID, siloData)
+ 
+--//Top: If a message "ping" is received then log the id of the sender and send that ID the data.
+--//Bottom: If the message is not "ping" and is a "table" from the id of the original sender then prepare for launch.
+ 
+            elseif type(msg2) == "table" and id == masterID then
+              if type(msg2.x) == "number" and type(msg2.y) == "number" and type(msg2.z) == "number" then
+              print("  launching CounterMeasures At x=" .. msg2.x .. ", y=" .. msg2.y .. ", z=" .. msg2.z)
+              icbm.setTarget(msg2.x, msg2.y, msg2.z)
+ 
+                if (armed) then
+                peripheral.call("back","launch")
+              end
+ 
+          else
+      print("  Invalid Table Command")
     end
   else
-    print("  Invalid messsage '", msg, "' From '", id, "', distance=", distance)
-  end
+ print("  Invalid Message:",msg," from: ",id)
+end
 end
