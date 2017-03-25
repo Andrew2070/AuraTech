@@ -18,44 +18,7 @@ term.setBackgroundColor(colors.red)
 print("                                                          ")
 term.setBackgroundColor(colors.blue)
 end
-
-local function findSilos()
-rednet.broadcast("ping")
  
-repeat
-        local id, msg2 = rednet.receive(waitDelay)
-        
-        if type(msg2) == "table" and msg2.Msg == "ping" then
-                table.insert(silos, msg2)
-                table.insert(data, msg2.ID)
-                
-        end
-until not id
-end
- 
-
-local function launch(count, x, y, z)
-  local msg = {x = x, y = y, z = z}
-    print("launching Missiles At " .. x .. ", " .. y .. ", " .. z)
-      for i = 1, count do
-        rednet.send(data[curSilo], msg)
-          curSilo = (curSilo == #data) and 1 or (curSilo + 1)
-            sleep(5)
-      end
-end
- 
-local function printSilos(silo)
-  term.clear()
-  term.setCursorPos(1,1)
-    print("              [Detected silos]       ")
-    
-    
-    
-for k, v in ipairs(silos) do
-        print("[S#:".. k .."] [ID:" .. v.ID .."] [Type:".. v.Missile .. "] [Target:".. v.Target .. "]")
-  end
-end
-
  
 function drawBoxPos(x,y,x1,y1)
   cy = y
@@ -158,11 +121,38 @@ function loginScreen()
           if loggedin then
 term.setBackgroundColor(colors.blue)
 term.clear()
-findSilos()
 term.setCursorPos(1,1)
 term.setBackgroundColor(colors.blue)
 term.clear()
-  printSilos(silo)
+
+
+
+rednet.broadcast("ping")
+ 
+repeat
+        local id, msg2 = rednet.receive(waitDelay)
+        if type(msg2) == "table" and msg2.Msg == "pong" then
+                table.insert(silos, msg2)
+                table.insert(data, msg2.ID)
+                
+        end
+until not id
+end
+  term.clear()
+  term.setCursorPos(1,1)
+    print("              [Detected silos]       ")
+   
+    
+for k, v in ipairs(silos) do
+        print("[S#:".. k .."] [ID:" .. v.ID .."] [Type:".. v.Missile .. "] [Target:".. v.Target .. "]")
+  end
+ 
+
+
+
+
+
+
 red()
 write("Enter Launch Verification Code: ")
   input  = read()
@@ -214,7 +204,13 @@ sleep(2)
 os.reboot()
 elseif abort == "No" then
     end
-    launch(count, x, y, z)
+  local msg = {["x"] = x, ["y"] = y, ["z"] = z}
+    print("launching Missiles At " .. x .. ", " .. y .. ", " .. z)
+      for i = 1, count do
+        rednet.send(data[curSilo], msg)
+          curSilo = (curSilo == #data) and 1 or (curSilo + 1)
+            sleep(5)
+      end
     sleep(10)
     os.reboot()
 end
@@ -243,7 +239,7 @@ end
   end
 end
 end
-end
+
 
 loginScreen()
 term.setBackgroundColor(colors.black)
