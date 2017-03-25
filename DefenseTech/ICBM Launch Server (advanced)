@@ -20,27 +20,21 @@ term.setBackgroundColor(colors.blue)
 end
 
 local function findSilos()
-    rednet.broadcast("ping silo")
+rednet.broadcast("ping")
  
-  local timerID = os.startTimer(waitDelay)
- 
-  while true do
-    event, id, msg1, distance = os.pullEvent()
-   
-    if event == "rednet_message" and msg1 == "table" then
-      
-      silo = textutils.unserialise(msg1)
-      
-      timerID = os.startTimer(waitDelay)
-    elseif event == "timer" and id == timerID then
-       return
-    end
-  end
+repeat
+        local id, msg2 = rednet.receive(waitDelay)
+        
+        if type(msg2) == "table" and msg2.Msg == "ping" then
+                table.insert(silos, msg2)
+                table.insert(data, msg2.ID)
+                
+        end
+until not id
 end
-
  
-local function launch()
-(count, x, y, z)
+
+local function launch(count, x, y, z)
   local msg = {x = x, y = y, z = z}
     print("launching Missiles At " .. x .. ", " .. y .. ", " .. z)
       for i = 1, count do
