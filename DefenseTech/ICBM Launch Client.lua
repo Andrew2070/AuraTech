@@ -16,8 +16,8 @@ local masterID
  
 if peripheral.call("back", "getMissile") ~= "{}"
 then currentmissile = "No Missile"
-  elseif peripheral.call("back", "getMissile") = "anti-ballistic missile"
-  then
+  else
+  
    local  currentmissile = tostring(missilesilo.getMissile())
     end
  
@@ -26,7 +26,7 @@ then currentmissile = "No Missile"
  
  
 --[[Data Storage + Table]]--
-local  target = tostring(missilesilo.getTarget())
+local target = tostring(missilesilo.getTarget())
  
 local siloData = {
 ["Msg"] = "pong",
@@ -45,6 +45,7 @@ while true do
     masterID = id;
     print(siloData[1])
     rednet.send(masterID, siloData)
+    print("Data has been sent to: "..masterID)
  
 --//Top: If a message "ping" is received then log the id of the sender and send that ID the data.
 --//Bottom: If the message is not "ping" and is a "table" from the id of the original sender then prepare for launch.
@@ -52,7 +53,7 @@ while true do
             elseif type(msg2) == "table" and id == masterID then
               if type(msg2.x) == "number" and type(msg2.y) == "number" and type(msg2.z) == "number" then
               print("  launching CounterMeasures At x=" .. msg2.x .. ", y=" .. msg2.y .. ", z=" .. msg2.z)
-              icbm.setTarget(msg2.x, msg2.y, msg2.z)
+              missilesilo.setTarget(msg2.x, msg2.y, msg2.z)
  
                 if (armed) then
                 peripheral.call("back","launch")
