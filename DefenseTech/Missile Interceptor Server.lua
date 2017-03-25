@@ -11,8 +11,8 @@ local countersPerMissile = 1
 local missileDelay = 3
  
 --[[Initialization]]--
-local silos, curSilo = {}, 1
-local data = {}
+local data, curSilo = {}, 1
+local silos = {}
 peripheral.find("modem", rednet.open)
 term.setBackgroundColor(colors.blue)
  
@@ -25,17 +25,13 @@ end
 rednet.broadcast("ABM1")
  
 repeat
-    local id, msg = rednet.receive(waitDelay)
-    if type(msg) == "table" and msg.Msg == "ABM" then
-print("Message is authentic")
- 
-table.insert(silos, msg.ID)
-table.insert(data, msg.ID)
-table.insert(silos, msg.Missile)
-table.insert(silos, msg.Target)
-table.insert(silos, msg.Armed)
-print(msg)
-end
+        local id, msg = rednet.receive(waitDelay)
+        
+        if type(msg) == "table" and msg.Msg == "ABM" then
+                table.insert(silos, msg)
+                table.insert(data, msg.ID)
+                
+        end
 until not id
  
  
@@ -53,9 +49,9 @@ while true do
         red()
         print("               [STANDBY ABM Silos]                 ")
  
-  for k, v in ipairs(data) do
-  print("[S#:".. k .."] [ID:" .. v .."] [Type:".. silos[2] .. "] [Target:".. silos[3] .. "]")
- end
+for k, v in ipairs(silos) do
+        print("[S#:".. k .."] [ID:" .. v.ID .."] [Type:".. v.Missile .. "] [Target:".. v.Target .. "]")
+end
         red()
        
         repeat os.pullEvent("redstone") until redstone.getInput("back")
@@ -83,8 +79,8 @@ while true do
         print("Launching " .. countersPerMissile .. " of ABM Missile CounterMeasures...\n")
  
         for i = 1, countersPerMissile do
-            rednet.send(silos[curSilo], msg)
-            curSilo = (curSilo == #silos) and 1 or (curSilo + 1)
+            rednet.send(data[curSilo], msg)
+            curSilo = (curSilo == #data) and 1 or (curSilo + 1)
             sleep(missileDelay)
             end
         sleep(0)
