@@ -6,6 +6,7 @@ users = {"Andrew2070"}
 passwords = {"3765"}
  
 local silos = {}
+local data, curSilo = {}, 1
  
 --[[Functions]]--
 
@@ -38,13 +39,13 @@ local function findSilos()
 end
 
  
-local curSilo = 1
-local function launch(count, x, y, z)
+local function launch()
+(count, x, y, z)
   local msg = {x = x, y = y, z = z}
     print("launching Missiles At " .. x .. ", " .. y .. ", " .. z)
       for i = 1, count do
-        rednet.send(silos[curSilo], msg)
-          curSilo = (curSilo == #silos) and 1 or (curSilo + 1)
+        rednet.send(data[curSilo], msg)
+          curSilo = (curSilo == #data) and 1 or (curSilo + 1)
             sleep(5)
       end
 end
@@ -56,12 +57,11 @@ local function printSilos(silo)
     
     
     
-    for k, v in ipairs(silos) do
-    print("              silo #" .. k .. " id = "..v)
+for k, v in ipairs(silos) do
+        print("[S#:".. k .."] [ID:" .. v.ID .."] [Type:".. v.Missile .. "] [Target:".. v.Target .. "]")
   end
 end
- 
- 
+
  
 function drawBoxPos(x,y,x1,y1)
   cy = y
