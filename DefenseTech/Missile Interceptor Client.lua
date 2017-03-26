@@ -27,15 +27,19 @@ then currentmissile = "No Missile"
  
  
 --[[Data Storage + Table]]--
-local  target = tostring(missilesilo.getTarget())
+
  
 local siloData = {
 ["Msg"] = "ABM",
 ["ID"] = os.getComputerID(),
 ["Missile"] = currentmissile,
-["Target"] = target
+["armed"] = armed
 }
  
+siloData.tX, siloData.tY, siloData.tZ = missilesilo.getTarget()
+
+
+
 --[[Main Program + Rednet Setup]]--
 while true do
  print("Waiting for Threat Message From Defense Server...")
