@@ -10,15 +10,13 @@ missilesilo = peripheral.wrap("back")
 rednet.open("top")
 local armed = true
 local masterID
---local pack = textutils.serialise(siloData)
  
 --[[Contingencies]]--
  
-if peripheral.call("back", "getMissile") ~= "{}"
-then currentmissile = "No Missile"
+if peripheral.call("back", "getMissile") ~= "nil"
+then currentmissile = tostring(missilesilo.getMissile())
   else
-  
-   local  currentmissile = tostring(missilesilo.getMissile())
+    currentmissile = "Empty"
     end
  
 --//Basically provides a contingency that when no missile is detected, it returns "No Missile"
@@ -27,14 +25,18 @@ then currentmissile = "No Missile"
  
 --[[Data Storage + Table]]--
 local target = tostring(missilesilo.getTarget())
+local xc, yc, zc = missilesilo.getTarget()
  
 local siloData = {
 ["Msg"] = "pong",
 ["ID"] = os.getComputerID(),
 ["Missile"] = currentmissile,
-["Target"] = target
+["Armed"] = armed,
+["TarX"] = xc,
+["TarY"] = yc,
+["TarZ"] = zc
 }
- 
+
 --[[Main Program + Rednet Setup]]--
 while true do
  print("Waiting for Threat Message From Defense Server...")
@@ -45,14 +47,14 @@ while true do
     masterID = id;
     print(siloData[1])
     rednet.send(masterID, siloData)
-    print("Data has been sent to: "..masterID)
+    print("Data has successfully been sent to: "..masterID)
  
 --//Top: If a message "ping" is received then log the id of the sender and send that ID the data.
 --//Bottom: If the message is not "ping" and is a "table" from the id of the original sender then prepare for launch.
  
             elseif type(msg2) == "table" and id == masterID then
               if type(msg2.x) == "number" and type(msg2.y) == "number" and type(msg2.z) == "number" then
-              print("  launching CounterMeasures At x=" .. msg2.x .. ", y=" .. msg2.y .. ", z=" .. msg2.z)
+              print("  Launching missiles  At X:" .. msg2.x .. ", Y:" .. msg2.y .. ", Z:" .. msg2.z)
               missilesilo.setTarget(msg2.x, msg2.y, msg2.z)
  
                 if (armed) then
